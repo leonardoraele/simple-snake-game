@@ -6,37 +6,35 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 
-public class MainMenuScene implements Scene {
+public class MultiplayerMenuScene implements Scene {
 	
-	private interface GetScene {
-		public Scene getScene();
-	}
-	
-	private String[] options = {"START", "MULTIPLAYER", "HIGHSCORE", "EXIT"};
-	private GetScene[] actions = {this::startScene, this::multiplayerScene, this::highscoreScene, this::exitScene};
+	private String[] options = {"HOST MATCH", "JOIN MATCH", "BACK"};
+	private Runnable[] actions = {this::optionHostMatch, this::optionJoinMatch, this::optionBack};
 	
 	private int index;
+	private Scene nextScene;
 	private GameContainer gc;
-
-	public MainMenuScene(GameContainer gc) {
+	
+	public MultiplayerMenuScene(GameContainer gc) {
 		this.gc = gc;
 		this.index = 0;
+		this.nextScene = this;
 	}
 
 	@Override
-	public Scene update(GameContainer gc, int i) throws SlickException {
+	public Scene update(GameContainer gc, int deltaTime) throws SlickException {
 		if (gc.getInput().isKeyPressed(Input.KEY_UP)) {
 			this.index = Math.min(this.index - 1, this.options.length);
 		} else if (gc.getInput().isKeyPressed(Input.KEY_DOWN)) {
 			this.index = Math.max(this.index + 1, 0);
 		} else if (gc.getInput().isKeyPressed(Input.KEY_ENTER) ||
 				gc.getInput().isKeyPressed(Input.KEY_SPACE)) {
-			return this.actions[this.index].getScene();
+			this.actions[this.index].run();
 		} else if (gc.getInput().isKeyPressed(Input.KEY_ESCAPE)) {
-			return null;
+			this.nextScene = null;
 		}
 		
-		return this;
+		return this.nextScene;
 	}
 
 	@Override
@@ -52,23 +50,18 @@ public class MainMenuScene implements Scene {
 		}
 	}
 	
-	public Scene startScene() {
-		return new GameScene(this.gc);
-	}
-	
-	public Scene multiplayerScene() {
-		return new MultiplayerMenuScene(this.gc);
-	}
-	
-	public Scene highscoreScene() {
-		// TODO
-		//return new HighscoreScene();
+	public void optionHostMatch() {
+		//
 		this.options[this.index] = "(PENDING)";
-		return this;
 	}
 	
-	public Scene exitScene() {
-		return null;
+	public void optionJoinMatch() {
+		// TODO
+		this.options[this.index] = "(PENDING)";
+	}
+	
+	public void optionBack() {
+		this.nextScene = new MainMenuScene(this.gc);
 	}
 
 }
