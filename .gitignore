@@ -1,4 +1,12 @@
+# Compiled things
+bin/
 *.class
+
+# Eclipse files
+.settings/
+.project
+.classpath
+.project
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
