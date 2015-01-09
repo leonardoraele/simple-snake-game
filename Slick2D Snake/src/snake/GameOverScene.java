@@ -19,6 +19,10 @@ public class GameOverScene implements Scene {
 	public GameOverScene(int score) {
 		this.score = score;
 		this.showScore = true;
+		
+		if (this.score > HighscoreScene.loadScore()) {
+			HighscoreScene.saveScore(this.score);
+		}
 	}
 
 	@Override

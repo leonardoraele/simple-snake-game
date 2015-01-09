@@ -26,9 +26,9 @@ public class MainMenuScene implements Scene {
 	@Override
 	public Scene update(GameContainer gc, int i) throws SlickException {
 		if (gc.getInput().isKeyPressed(Input.KEY_UP)) {
-			this.index = Math.min(this.index - 1, this.options.length);
+			this.index = Math.max(this.index - 1, 0);
 		} else if (gc.getInput().isKeyPressed(Input.KEY_DOWN)) {
-			this.index = Math.max(this.index + 1, 0);
+			this.index = Math.min(this.index + 1, this.options.length - 1);
 		} else if (gc.getInput().isKeyPressed(Input.KEY_ENTER) ||
 				gc.getInput().isKeyPressed(Input.KEY_SPACE)) {
 			return this.actions[this.index].getScene();
@@ -61,10 +61,7 @@ public class MainMenuScene implements Scene {
 	}
 	
 	public Scene highscoreScene() {
-		// TODO
-		//return new HighscoreScene();
-		this.options[this.index] = "(PENDING)";
-		return this;
+		return new HighscoreScene();
 	}
 	
 	public Scene exitScene() {
