@@ -158,6 +158,7 @@ public class GameScene implements Scene {
 	
 	private void acceptSignRequests() {
 		this.signRequests.forEach(request -> request.accept(this.managing));
+		this.signRequests.clear();
 	}
 
 	public void gameOver() {
