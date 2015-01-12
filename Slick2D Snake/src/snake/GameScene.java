@@ -2,6 +2,8 @@ package snake;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
 
 import org.newdawn.slick.Color;
@@ -11,6 +13,32 @@ import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 
 public class GameScene implements Scene {
+	
+	private interface SignRequest {
+		public void accept(Collection<GameObject> col);
+	}
+	
+	private class SignInRequest implements SignRequest {
+		private GameObject object;
+		public SignInRequest(GameObject object) {
+			this.object = object;
+		}
+		@Override
+		public void accept(Collection<GameObject> col) {
+			col.add(this.object);
+		}
+	}
+	
+	private class SignOutRequest implements SignRequest {
+		private GameObject object;
+		public SignOutRequest(GameObject object) {
+			this.object = object;
+		}
+		@Override
+		public void accept(Collection<GameObject> col) {
+			col.remove(this.object);
+		}
+	}
 	
 	private static final int DEFAULT_MAP_WIDTH = 20;
 	private static final int DEFAULT_MAP_HEIGHT = 15;
@@ -23,6 +51,7 @@ public class GameScene implements Scene {
 	private int score;
 	private Scene nextScene;
 	private Collection<GameObject> managing;
+	private List<SignRequest> signRequests;
 	
 	public GameScene(GameContainer gc) {
 		// Setup
@@ -31,22 +60,23 @@ public class GameScene implements Scene {
 		this.score = 0;													// Initialize score to 0 (zero)
 		this.nextScene = this;											// Scene to return in the next update
 		this.managing = new HashSet<GameObject>();						// GameObjects to update and render
+		this.signRequests = new LinkedList<SignRequest>();
 		this.tileWidth = gc.getWidth() / this.map.getWidth();			// Width of a tile in pixels
 		this.tileHeight = gc.getHeight() / this.map.getHeight();		// Height of a tile in pixels
 		
 		// Initialize Map
 		this.map.addListener(new Map.MapListener() {
 			@Override
+			public void onAdded(GameObject object, GameObject collision) {
+				GameScene.this.sign(object);
+			}
+			@Override
 			public void onRemoved(GameObject object, int fromX, int fromY) {
 				GameScene.this.unsign(object);
 			}
 			@Override
-			public void onMoved(GameObject object, int fromX, int fromY) {
+			public void onMoved(GameObject object, int fromX, int fromY, GameObject collision) {
 				// Do nothing
-			}
-			@Override
-			public void onAdded(GameObject object, int toX, int toY) {
-				GameScene.this.sign(object);
 			}
 		});
 		this.map.putPos(0, 0, this.playerSnake);
@@ -55,7 +85,8 @@ public class GameScene implements Scene {
 
 	@Override
 	public Scene update(GameContainer gc, int deltaTime) throws SlickException {
-		this.playerSnake.update(this, gc.getInput(), deltaTime);
+		this.managing.forEach(object -> object.update(this, gc.getInput(), deltaTime));
+		this.acceptSignRequests();
 		
 		if (gc.getInput().isKeyPressed(Input.KEY_SPACE)) {
 			this.pause();
@@ -118,11 +149,15 @@ public class GameScene implements Scene {
 	}
 
 	public void sign(GameObject object) {
-		this.managing.add(object);
+		this.signRequests.add(new SignInRequest(object));
 	}
 	
 	public void unsign(GameObject object) {
-		this.managing.remove(object);
+		this.signRequests.add(new SignOutRequest(object));
+	}
+	
+	private void acceptSignRequests() {
+		this.signRequests.forEach(request -> request.accept(this.managing));
 	}
 
 	public void gameOver() {
