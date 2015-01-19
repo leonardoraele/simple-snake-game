@@ -14,9 +14,11 @@ public class MultiplayerMenuScene implements Scene {
 	private int index;
 	private Scene nextScene;
 	private GameContainer gc;
+	private GameConfigs configs;
 	
-	public MultiplayerMenuScene(GameContainer gc) {
+	public MultiplayerMenuScene(GameContainer gc, GameConfigs configs) {
 		this.gc = gc;
+		this.configs = configs;
 		this.index = 0;
 		this.nextScene = this;
 	}
@@ -61,7 +63,7 @@ public class MultiplayerMenuScene implements Scene {
 	}
 	
 	public void optionBack() {
-		this.nextScene = new MainMenuScene(this.gc);
+		this.nextScene = new MainMenuScene(this.gc, this.configs);
 	}
 
 }

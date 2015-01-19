@@ -80,6 +80,12 @@ public class Map {
 		}
 		return this.map[this.width * y + x];
 	}
+
+	public GameObject peekPosOrLoop(int x, int y)
+			throws IllegalArgumentException
+	{
+		return this.peekPos(loopX(x), loopY(y));
+	}
 	
 	public GameObject popPos(int x, int y)
 			throws IllegalArgumentException
@@ -134,12 +140,20 @@ public class Map {
 	}
 	
 	public GameObject moveRelativeOrLoop(GameObject object, int x, int y) {
-		int toX = (object.getX() + x + this.width) % this.width;
-		int toY = (object.getY() + y + this.height) % this.height;
+		int toX = loopX(object.getX() + x);
+		int toY = loopY(object.getY() + y);
 		
 		return this.moveAbsolute(object, toX, toY);
 	}
 	
+	private int loopX(int x) {
+		return (x + this.width) % this.width;
+	}
+	
+	private int loopY(int y) {
+		return (y + this.height) % this.height;
+	}
+
 	public GameObject moveRelativeOrThrow(GameObject object, int x, int y) {
 		int toX = object.getX() + x;
 		int toY = object.getY() + y;

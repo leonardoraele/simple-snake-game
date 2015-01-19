@@ -10,13 +10,16 @@ public class GameOverScene implements Scene {
 	
 	private int score;
 	private boolean showScore;
+	private GameConfigs configs;
 
-	public GameOverScene() {
+	public GameOverScene(GameConfigs configs) {
+		this.configs = configs;
 		this.score = 0;
 		this.showScore = false;
 	}
 	
-	public GameOverScene(int score) {
+	public GameOverScene(GameConfigs configs, int score) {
+		this.configs = configs;
 		this.score = score;
 		this.showScore = true;
 		
@@ -30,7 +33,7 @@ public class GameOverScene implements Scene {
 		if (gc.getInput().isKeyPressed(Input.KEY_ENTER) ||
 			gc.getInput().isKeyPressed(Input.KEY_SPACE)
 			) {
-			return new MainMenuScene(gc);
+			return new MainMenuScene(gc, this.configs);
 		} else if (gc.getInput().isKeyPressed(Input.KEY_ESCAPE)) {
 			return null;
 		} else {

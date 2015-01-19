@@ -16,9 +16,11 @@ public class PauseScene implements Scene {
 	@Override
 	public Scene update(GameContainer gc, int deltaTime) throws SlickException {
 		Scene nextScene;
-		
+
 		if (gc.getInput().isKeyPressed(Input.KEY_SPACE)) {
 			nextScene = this.pausedScene;
+		} else if (gc.getInput().isKeyPressed(Input.KEY_ESCAPE)) {
+			nextScene = null;
 		} else {
 			nextScene = this;
 		}

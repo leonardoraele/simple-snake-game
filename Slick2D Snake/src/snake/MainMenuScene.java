@@ -17,10 +17,12 @@ public class MainMenuScene implements Scene {
 	
 	private int index;
 	private GameContainer gc;
+	private GameConfigs configs;
 
-	public MainMenuScene(GameContainer gc) {
+	public MainMenuScene(GameContainer gc, GameConfigs configs) {
 		this.gc = gc;
 		this.index = 0;
+		this.configs = configs;
 	}
 
 	@Override
@@ -53,15 +55,15 @@ public class MainMenuScene implements Scene {
 	}
 	
 	public Scene startScene() {
-		return new GameScene(this.gc);
+		return new GameScene(this.gc, this.configs);
 	}
 	
 	public Scene multiplayerScene() {
-		return new MultiplayerMenuScene(this.gc);
+		return new MultiplayerMenuScene(this.gc, this.configs);
 	}
 	
 	public Scene highscoreScene() {
-		return new HighscoreScene();
+		return new HighscoreScene(this.configs);
 	}
 	
 	public Scene exitScene() {

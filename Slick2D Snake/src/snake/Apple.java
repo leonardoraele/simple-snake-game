@@ -22,7 +22,7 @@ public class Apple extends GameObject implements Snake.SnakeBooster {
 	public void eaten(Snake snake, GameScene scene) {
 		snake.grow();
 		snake.setSpeed(snake.getSpeed() - SPEED_INCREASE);
-		scene.generateSimpleApple();
+		scene.generateApple();
 		scene.addScore(SCORE_INCREASE);
 	}
 

@@ -7,15 +7,15 @@ import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
 
-public class Snake extends GameObject {
+public abstract class Snake extends GameObject {
 	
 	public interface SnakeBooster {
 		public void eaten(Snake snake, GameScene scene);
 	}
 	
-	private static final Direction DEFAULT_DIRECTION = Direction.RIGHT;
-	private static final int DEFAULT_SPEED = 1000;
 	private static final int MIN_SPEED = 10;
+	private static final Direction DEFAULT_DIRECTION = Direction.RIGHT;
+	private static final int DEFAULT_SPEED = 100;
 	
 	private Direction face;
 	private int speed;
@@ -59,41 +59,26 @@ public class Snake extends GameObject {
 	
 	@Override
 	public void update(GameScene scene, Input input, int delta) {
-		this.updateInput(input);
-		this.updateMovement(scene, delta);
-	}
-
-	private void updateInput(Input input) {
-		if (input.isKeyPressed(Input.KEY_RIGHT)) {
-			this.face = Direction.RIGHT;
-		} else if (input.isKeyPressed(Input.KEY_DOWN)) {
-			this.face = Direction.DOWN;
-		} else if (input.isKeyPressed(Input.KEY_LEFT)) {
-			this.face = Direction.LEFT;
-		} else if (input.isKeyPressed(Input.KEY_UP)) {
-			this.face = Direction.UP;
-		}
-	}
-
-	private void updateMovement(GameScene scene, int delta) {
 		this.deltaCount += delta;
 		
 		while (this.deltaCount >= this.speed) {
-			// Important to know where to move the segments after moving the head
+			Map map = scene.getMap();
+			
+			// Important for knowing where to move the segments after moving the head
 			int fromX = this.getX();
 			int fromY = this.getY();
 			
 			// Moves snake's head (this)
-			GameObject collision = scene.getMap().moveRelativeOrLoop(
+			GameObject collision = map.moveRelativeOrLoop(
 					this, this.face.getX(), this.face.getY());
 			
 			// Moves the segments
 			if (!this.segments.isEmpty()) {
 				SnakeBody segment = this.segments.removeLast();
 				if (segment.hasPosition()) {
-					scene.getMap().moveAbsolute(segment, fromX, fromY);
+					map.moveAbsolute(segment, fromX, fromY);
 				} else {
-					scene.getMap().putPos(fromX, fromY, segment);
+					map.putPos(fromX, fromY, segment);
 				}
 				this.segments.addFirst(segment);
 			}

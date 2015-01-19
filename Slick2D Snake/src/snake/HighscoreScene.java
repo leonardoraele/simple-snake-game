@@ -16,8 +16,10 @@ public class HighscoreScene implements Scene {
 	
 	public static final String HIGHSCORE_FILENAME = "highscore.txt";
 	private Integer highscore;
+	private GameConfigs configs;
 
-	public HighscoreScene() {
+	public HighscoreScene(GameConfigs configs) {
+		this.configs = configs;
 		this.highscore = HighscoreScene.loadScore();
 	}
 
@@ -26,7 +28,7 @@ public class HighscoreScene implements Scene {
 		if (gc.getInput().isKeyPressed(Input.KEY_ENTER) ||
 			gc.getInput().isKeyPressed(Input.KEY_SPACE) ||
 			gc.getInput().isKeyPressed(Input.KEY_ESCAPE)) {
-			return new MainMenuScene(gc);
+			return new MainMenuScene(gc, this.configs);
 		} else {
 			return this;
 		}

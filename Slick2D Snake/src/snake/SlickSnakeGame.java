@@ -1,5 +1,7 @@
 package snake;
 
+import java.io.IOException;
+
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.BasicGame;
 import org.newdawn.slick.GameContainer;
@@ -8,19 +10,21 @@ import org.newdawn.slick.SlickException;
 
 public class SlickSnakeGame extends BasicGame {
 	
-	public static void main(String[] args) throws SlickException {
-		SlickSnakeGame snakeGame = new SlickSnakeGame();
+	private static final String PROPERTIES_FILENAME = "conf.properties";
+	
+	public static void main(String[] args) throws SlickException, IOException {
+		GameConfigs configs = new GameConfigs(PROPERTIES_FILENAME);
+		SlickSnakeGame snakeGame = new SlickSnakeGame(configs);
 		AppGameContainer gc = new AppGameContainer(snakeGame, 640, 480, false);
 		gc.start();
 	}
-
-	private static final String DEFAULT_GAME_NAME = "Snake";
-	private static final Class<? extends Scene> MAIN_SCENE_CLASS = MainMenuScene.class;
 	
 	private Scene scene;
+	private GameConfigs configs;
 	
-	public SlickSnakeGame() {
-		super(DEFAULT_GAME_NAME);
+	public SlickSnakeGame(GameConfigs configs) {
+		super(configs.getGameName());
+		this.configs = configs;
 	}
 
 	@Override
@@ -28,10 +32,15 @@ public class SlickSnakeGame extends BasicGame {
 			throws SlickException
 	{
 		try {
-			this.scene = MAIN_SCENE_CLASS.getConstructor(GameContainer.class).newInstance(gc);
+			Class<? extends Scene> mainSceneClass = this.configs.getMainSceneClass();
+			this.scene = mainSceneClass.getConstructor(GameContainer.class, GameConfigs.class)
+					.newInstance(gc, this.configs);
+			
+			Controller controller = this.configs.createPlayer1Input(gc.getInput());
+			Player player = new LocalPlayer("Player #1", controller);
+			this.configs.addPlayer(player);
 		} catch (Exception e) {
-			System.err.println("Could not call constructor " + MAIN_SCENE_CLASS.getSimpleName() + "(GameContainer gc) of " + MAIN_SCENE_CLASS);
-			e.printStackTrace();
+			throw new SlickException("Couldn't instantiate main scene class because " + e.getMessage(), e);
 		}
 	}
 
@@ -50,7 +59,9 @@ public class SlickSnakeGame extends BasicGame {
 	public void render(GameContainer gc, Graphics g)
 			throws SlickException
 	{
-		this.scene.render(gc, g);
+		if (this.scene != null) {
+			this.scene.render(gc, g);
+		}
 	}
 
 }

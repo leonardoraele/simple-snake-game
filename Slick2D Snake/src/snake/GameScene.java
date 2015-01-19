@@ -9,9 +9,9 @@ import java.util.Random;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
-import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 
+// TODO Mapa
 public class GameScene implements Scene {
 	
 	private interface SignRequest {
@@ -45,18 +45,18 @@ public class GameScene implements Scene {
 	private static final float CHANCE_TO_SPECIAL_APPLE = 0.05f;
 	
 	private Map map;
-	private Snake playerSnake;
 	private int tileWidth;
 	private int tileHeight;
 	private int score;
 	private Scene nextScene;
 	private Collection<GameObject> managing;
 	private List<SignRequest> signRequests;
+	private GameConfigs configs;
 	
-	public GameScene(GameContainer gc) {
+	public GameScene(GameContainer gc, GameConfigs configs) {
 		// Setup
+		this.configs = configs;
 		this.map = new Map(DEFAULT_MAP_WIDTH, DEFAULT_MAP_HEIGHT);		// Game map containing the game objects
-		this.playerSnake = new Snake(100);								// Creates the player's snake
 		this.score = 0;													// Initialize score to 0 (zero)
 		this.nextScene = this;											// Scene to return in the next update
 		this.managing = new HashSet<GameObject>();						// GameObjects to update and render
@@ -79,20 +79,20 @@ public class GameScene implements Scene {
 				// Do nothing
 			}
 		});
-		this.map.putPos(0, 0, this.playerSnake);
-		this.generateSimpleApple();
+		for (Player player : this.configs.getPlayers()) {
+			Snake snake = player.createSnake();
+			XY position = this.getRandomFreePosition();
+			this.map.putPos(position.x, position.y, snake);
+		}
+		this.generateApple();
 	}
 
 	@Override
 	public Scene update(GameContainer gc, int deltaTime) throws SlickException {
+		this.nextScene = this;
+		
 		this.managing.forEach(object -> object.update(this, gc.getInput(), deltaTime));
 		this.acceptSignRequests();
-		
-		if (gc.getInput().isKeyPressed(Input.KEY_SPACE)) {
-			this.pause();
-		} else if (gc.getInput().isKeyPressed(Input.KEY_ESCAPE)) {
-			this.gameOver();
-		}
 		
 		return this.nextScene;
 	}
@@ -126,24 +126,24 @@ public class GameScene implements Scene {
 		return new XY(x, y);
 	}
 	
-	public void generateSimpleApple() {
+	public void generateApple() {
 		Apple apple = new Apple();
-		this.generateApple(apple);
+		this.privateGenerateApple(apple);
 		
 		Random random = new Random();
 		if (random.nextFloat() < CHANCE_TO_SPECIAL_APPLE) {
 			switch (random.nextInt(2)) {
 			case 0:
-				this.generateApple(new BlueApple());
+				this.privateGenerateApple(new BlueApple());
 				break;
 			case 1:
-				this.generateApple(new OrangeApple());
+				this.privateGenerateApple(new OrangeApple());
 				break;
 			}
 		}
 	}
 
-	private void generateApple(GameObject apple) {
+	private void privateGenerateApple(GameObject apple) {
 		XY position = this.getRandomFreePosition();
 		this.map.putPos(position.x, position.y, apple);
 	}
@@ -162,7 +162,7 @@ public class GameScene implements Scene {
 	}
 
 	public void gameOver() {
-		this.nextScene = new GameOverScene(this.score);
+		this.nextScene = new GameOverScene(this.configs, this.score);
 	}
 
 	public void pause() {
